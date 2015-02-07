@@ -1,0 +1,34 @@
+<template name="rateCalculator">
+    <form class="form-horizontal">
+        <fieldset>
+
+            <!-- Form Name -->
+            <legend>Rate Calculator</legend>
+
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="operations">Operations</label>
+                <div class="col-md-4">
+                    <input id="operations" name="operations" type="text" placeholder="1000" class="form-control input-md">
+                    <span class="help-block">Number of ops</span>
+                </div>
+            </div>
+
+            <!-- Select Basic -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="time-unit">Interval</label>
+                <div class="col-md-4">
+                    <select id="time-unit" name="time-unit" class="form-control">
+                        <option value="6">minute</option>
+                        <option value="360">hour</option>
+                        <option value="864">day</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="calc-rate">Calculate Rate/Interval</button>
+
+        </fieldset>
+    </form>
+
+</template>

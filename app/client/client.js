@@ -1,0 +1,77 @@
+console.log("loaded client.js");
+Meteor.startup(function () {
+    Notifications.defaultOptionsByType[Notifications.TYPES.SUCCESS] = _.defaults({
+            timeout: 5000
+        },
+        Notifications.defaultOptions);
+});
+
+Template.mongo.helpers({
+    status: function () {
+        return Session.get('status');
+    }
+});
+
+Template.mongo.events({
+    'click button#test-db-connection': function (evt, tpl) {
+        evt.preventDefault();
+        var mongoUrl = $("input[name=mongoUrl]").val();
+        var collectionName = $("input[name=collectionName]").val();
+        console.log(mongoUrl, collectionName);
+        Meteor.call('testDbConnection', {
+            mongoUrl: mongoUrl,
+            collectionName: collectionName
+        }, function (error, result) {
+
+            if (error) {
+                Notifications.error('Could not connect to MongoDB', 'Could not establish a connection to ' + mongoUrl + ' or the ' + collectionName + ' collection.');
+                console.log("error connecting to MongoDB:", error);
+
+            }
+            else {
+                console.log(result);
+                Notifications.success('Successfully connected to MongoDB', 'Successfully connected to ' + mongoUrl + '.<br/>' + +result + ' docs in the ' + collectionName + ' collection.', {timeout: 5000});
+                console.log("successfully connected to MongoDB, found " + result + " document(s)");
+            }
+        });
+    },
+    'click button#run-mongo-stress': function (evt, tpl) {
+        evt.preventDefault();
+        // var arrayOfLines = $("#input").val().split("\n");
+        var mongoUrl = $("input[name=mongoUrl]").val();
+        var collectionName = $("input[name=collectionName]").val();
+        var rate = parseInt($("input[name=rate]").val());
+        var interval = parseInt($("input[name=interval]").val());
+        Meteor.call('insertToMongo', {
+            mongoUrl: mongoUrl,
+            collectionName: collectionName,
+            rate: rate,
+            interval: interval
+        }, function (error, result) {
+
+            if (error) {
+                Notifications.error('Whoops', 'Error encountered:', error);
+                console.log("error connecting to MongoDB", error);
+
+            }
+            else {
+                console.log(result);
+                Notifications.success('Done', 'Result is ' + result);
+                console.log("Done with " + result + ".");
+            }
+        });
+
+    }
+});
+
+Template.rateCalculator.events({
+    'click button#calc-rate': function (evt, tpl) {
+        evt.preventDefault();
+        var operations = $("input[id=operations]").val();
+        var timeunit = $("select[id=time-unit]").val();
+        console.log(operations, timeunit);
+        $("input[name=rate]").val(Math.floor(operations/timeunit));
+        $("input[name=interval]").val('10000');
+
+    }
+})

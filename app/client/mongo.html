@@ -1,0 +1,23 @@
+<template name="mongo">
+
+    {{#autoForm schema="MongoTesterSchema" id="mongo-test-details"}}
+        <fieldset>
+            <legend>MongoDB Details</legend>
+            {{> afQuickField name='mongoUrl' placeholder='mongodb://user:pass@host:port/dbname' value="mongodb://osm:password@192.168.2.34:27017/osm"}}
+
+            {{> afQuickField name='collectionName' placeholder='collection name' value="test"}}
+
+            <button type="submit" class="btn btn-info btn-xs" id="test-db-connection">Test Connection</button>
+
+            {{> afQuickField name='rate' placeholder='100' value="100"}}
+
+            {{> afQuickField name='interval' placeholder='5000' value="10000"}}
+
+        </fieldset>
+
+
+        <button type="submit" class="btn btn-primary" id="run-mongo-stress">Start stress test</button>
+    {{/autoForm}}
+
+    {{> rateCalculator}}
+</template>
