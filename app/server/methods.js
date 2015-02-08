@@ -73,26 +73,26 @@ performOperations = function (database, rate, endTime, operationObject) {
     console.log("running until " + endTime);
     console.log("is it pre-endTime?", moment().isBefore(endTime));
 
-    //while (moment().isBefore(endTime)) { // This is what we actually want, but it's a mess inside async
+    //while (moment().isBefore(endTime)) { // TODO: This is what we actually want, but it's a mess inside async
 
     // old and working, but should be using while
     for (var i = 0; i < 10; i++) {
         operationsCount++;
         (function (numOperation) {
-            setTimeout(Meteor.bindEnvironment(function () {
-                rate.schedule(Meteor.bindEnvironment(function () {
-                    database.open(operationObject.collectionName).insert({foo: 'bar'}, function(error,result){
-                        if (error){
-                            console.log(error);
-                        }
-                        else {
-                            console.log(result);
-                        }
-                    });
-                    console.log('Operation %d', numOperation);
-                }));
+            rate.schedule(Meteor.bindEnvironment(function () {
+                database.open(operationObject.collectionName).insert({foo: 'bar'}, function (error, result) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    else {
+                        console.log(result);
+                    }
+                });
+
+                console.log('Operation %d', numOperation);
             }));
         })(operationsCount);
     }
+    // TODO: Prevent premature notification in the UI
     return operationsCount;
 };
