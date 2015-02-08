@@ -43,7 +43,7 @@ Meteor.methods({
         // TODO: Async
         // insert docs at rate into DB for duration
 
-        insertCount = Meteor.wrapAsync(performOperations(database, rate, endTime, operationObject));
+        insertCount = performOperations(database, rate, endTime, operationObject);
 
         //}
         console.log("done with ", operationCount, "operations");
@@ -75,19 +75,35 @@ performOperations = function (database, rate, endTime, operationObject) {
 
     //while (moment().isBefore(endTime)) { // This is what we actually want, but it's a mess inside async
 
-    for (var i = 0; i < 20; i++) {
-        rate.schedule(function () {
-            operationsCount++;
-
-            database.open(operationObject.collectionName).insert(operationObject.doc, Meteor.bindEnvironment(function (error, result) {
-                if (error) {
-                    console.log("Whoops", error)
-                }
-                else {
-                    console.log("Yeah", result);
-                }
+// old and working
+    for (var i = 0; i < 10; i++) {
+        operationsCount++;
+        (function (numOperation) {
+            setTimeout(Meteor.bindEnvironment(function () {
+                rate.schedule(Meteor.bindEnvironment(function () {
+                    database.open(operationObject.collectionName).insert({foo: 'bar'});
+                    console.log('Operation %d', numOperation);
+                }));
             }));
-        });
+        })(operationsCount);
     }
     return operationsCount;
+
+
+    // new and not working
+    //for (var i = 0; i < 20; i++) {
+    //    rate.schedule(function () {
+    //        operationsCount++;
+    //
+    //        database.open(operationObject.collectionName).insert(operationObject.doc, Meteor.bindEnvironment(function (error, result) {
+    //            if (error) {
+    //                console.log("Whoops", error)
+    //            }
+    //            else {
+    //                console.log("Yeah", result);
+    //            }
+    //        }));
+    //    });
+    //}
+    //return operationsCount;
 };
