@@ -62,7 +62,11 @@ Template.mongodb.events({
                 console.log("Inserted " + result + " docs.");
             }
         });
-
+    },
+    'click button#cancel': function(evt){
+        evt.preventDefault();
+        Meteor.call('cancel');
+        console.log('sent cancel request to server');
     }
 });
 
