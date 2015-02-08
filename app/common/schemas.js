@@ -16,5 +16,9 @@ MongoTesterSchema = new SimpleSchema({
     interval: {
         type: Number,
         label: "Interval in ms"
+    },
+    duration: {
+        type: Number,
+        label: "Duration in minutes"
     }
 });

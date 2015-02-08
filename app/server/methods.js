@@ -18,13 +18,27 @@ Meteor.methods({
             mongoUrl: String,
             collectionName: String,
             rate: Number,
-            interval: Number
+            interval: Number,
+            duration: Number
         });
 
         data.burst = false; // perhaps later we will enhance it to allow bursts
         // console.log('connecting to:', data.mongoUrl, data.collectionName);
         var database = new MongoInternals.RemoteCollectionDriver(data.mongoUrl);
-        return database.open(data.collectionName).insert({foo: 'bar'});
+        var dbinserts = new RateLimit(data.rate, data.interval, data.burst);
+        var operationCount = 0;
+        for (var i = 0; i < 10; i++) {
+            operationCount++;
+            (function (numOperation) {
+                setTimeout(Meteor.bindEnvironment(function () {
+                    dbinserts.schedule(Meteor.bindEnvironment(function () {
+                        database.open(data.collectionName).insert({foo: 'bar'});
+                        console.log('Operation %d', numOperation);
+                    }));
+                }));
+            })(operationCount);
+        }
+        return operationCount;
         //var i;
         //
         //insertToMongo = function (data, callback) {

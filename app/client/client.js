@@ -6,13 +6,13 @@ Meteor.startup(function () {
         Notifications.defaultOptions);
 });
 
-Template.mongo.helpers({
+Template.mongodb.helpers({
     status: function () {
         return Session.get('status');
     }
 });
 
-Template.mongo.events({
+Template.mongodb.events({
     'click button#test-db-connection': function (evt, tpl) {
         evt.preventDefault();
         var mongoUrl = $("input[name=mongoUrl]").val();
@@ -42,11 +42,13 @@ Template.mongo.events({
         var collectionName = $("input[name=collectionName]").val();
         var rate = parseInt($("input[name=rate]").val());
         var interval = parseInt($("input[name=interval]").val());
+        var duration = parseInt($("input[name=duration]").val());
         Meteor.call('insertToMongo', {
             mongoUrl: mongoUrl,
             collectionName: collectionName,
             rate: rate,
-            interval: interval
+            interval: interval,
+            duration: duration
         }, function (error, result) {
 
             if (error) {
@@ -56,8 +58,8 @@ Template.mongo.events({
             }
             else {
                 console.log(result);
-                Notifications.success('Done', 'Result is ' + result);
-                console.log("Done with " + result + ".");
+                Notifications.success('Done', 'Inserted ' + result + ' docs.');
+                console.log("Inserted " + result + " docs.");
             }
         });
 

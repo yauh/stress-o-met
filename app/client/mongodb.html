@@ -1,4 +1,4 @@
-<template name="mongo">
+<template name="mongodb">
 
     {{#autoForm schema="MongoTesterSchema" id="mongo-test-details"}}
         <fieldset>
@@ -12,6 +12,8 @@
             {{> afQuickField name='rate' placeholder='100' value="100"}}
 
             {{> afQuickField name='interval' placeholder='5000' value="10000"}}
+
+            {{> afQuickField name='duration' placeholder='10' value="1"}}
 
         </fieldset>
 
