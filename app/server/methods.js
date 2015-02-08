@@ -75,35 +75,24 @@ performOperations = function (database, rate, endTime, operationObject) {
 
     //while (moment().isBefore(endTime)) { // This is what we actually want, but it's a mess inside async
 
-// old and working
+    // old and working, but should be using while
     for (var i = 0; i < 10; i++) {
         operationsCount++;
         (function (numOperation) {
             setTimeout(Meteor.bindEnvironment(function () {
                 rate.schedule(Meteor.bindEnvironment(function () {
-                    database.open(operationObject.collectionName).insert({foo: 'bar'});
+                    database.open(operationObject.collectionName).insert({foo: 'bar'}, function(error,result){
+                        if (error){
+                            console.log(error);
+                        }
+                        else {
+                            console.log(result);
+                        }
+                    });
                     console.log('Operation %d', numOperation);
                 }));
             }));
         })(operationsCount);
     }
     return operationsCount;
-
-
-    // new and not working
-    //for (var i = 0; i < 20; i++) {
-    //    rate.schedule(function () {
-    //        operationsCount++;
-    //
-    //        database.open(operationObject.collectionName).insert(operationObject.doc, Meteor.bindEnvironment(function (error, result) {
-    //            if (error) {
-    //                console.log("Whoops", error)
-    //            }
-    //            else {
-    //                console.log("Yeah", result);
-    //            }
-    //        }));
-    //    });
-    //}
-    //return operationsCount;
 };
