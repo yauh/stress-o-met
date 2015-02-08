@@ -9,13 +9,13 @@ MongoTesterSchema = new SimpleSchema({
         type: String,
         label: "Collection Name"
     },
-    rate: {
+    operations: {
         type: Number,
-        label: "Max Ops per interval"
+        label: "# of Operations (per interval)"
     },
     interval: {
         type: Number,
-        label: "Interval in ms"
+        label: "Interval in s"
     },
     duration: {
         type: Number,

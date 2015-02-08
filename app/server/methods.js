@@ -18,16 +18,17 @@ Meteor.methods({
         check(data, {
             mongoUrl: String,
             collectionName: String,
-            rate: Number,
+            operations: Number,
             interval: Number,
             duration: Number
         });
         data.burst = false; // perhaps later we will enhance it to allow bursts
+        waitLimitMs = Math.floor((data.interval/data.operations)*1000); // defines the wait time between two operations in ms
+        console.log("stats:", waitLimitMs, data.operations, data.interval);
         console.log('method insertToMongo called');
-        console.log(data.mongoUrl, data.collectionName, data.rate, data.interval, data.duration);
+        console.log(data.mongoUrl, data.collectionName, data.operations, data.interval, data.duration);
 
         var database = new MongoInternals.RemoteCollectionDriver(data.mongoUrl);
-        var rate = new RateLimit(data.rate, data.interval, data.burst);
         var operationCount = 0;
 
         // TODO: Make docObject customizable
@@ -43,7 +44,7 @@ Meteor.methods({
         // TODO: Async
         // insert docs at rate into DB for duration
 
-        insertCount = performOperations(database, rate, endTime, operationObject);
+        insertCount = performOperations(database, endTime, operationObject, waitLimitMs);
 
         //}
         console.log("done with ", operationCount, "operations");
@@ -64,7 +65,7 @@ Meteor.methods({
 // endTime (moment object)
 // and operationsObject that contains the actual operation and any data (split into command and data?)
 
-performOperations = function (database, rate, endTime, operationObject) {
+performOperations = function (database, endTime, operationObject, waitLimitMs) {
     // this will be useful as our return value
     var operationsCount = 0;
 
@@ -72,26 +73,21 @@ performOperations = function (database, rate, endTime, operationObject) {
     console.log("running from  " + moment());
     console.log("running until " + endTime);
     console.log("is it pre-endTime?", moment().isBefore(endTime));
-
-    //while (moment().isBefore(endTime)) { // TODO: This is what we actually want, but it's a mess inside async
-
-    // old and working, but should be using while
-    for (var i = 0; i < 10; i++) {
+    function insertDoc() {
         operationsCount++;
-        (function (numOperation) {
-            rate.schedule(Meteor.bindEnvironment(function () {
-                database.open(operationObject.collectionName).insert({foo: 'bar'}, function (error, result) {
-                    if (error) {
-                        console.log(error);
-                    }
-                    else {
-                        console.log(result);
-                    }
-                });
+        database.open(operationObject.collectionName).insert({foo: 'bar'}, Meteor.bindEnvironment(function (error, result) {
+            if (error) {
+                console.log(error);
+            }
+            else {
+                console.log(result);
+            }
+        }));
+    };
 
-                console.log('Operation %d', numOperation);
-            }));
-        })(operationsCount);
+    var insertDocWithLimit = _.rateLimit(Meteor.bindEnvironment(insertDoc), waitLimitMs);
+    for (var i = 0; i < 10; i++) {
+        insertDocWithLimit(i);
     }
     // TODO: Prevent premature notification in the UI
     return operationsCount;

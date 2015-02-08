@@ -40,13 +40,13 @@ Template.mongodb.events({
         // var arrayOfLines = $("#input").val().split("\n");
         var mongoUrl = $("input[name=mongoUrl]").val();
         var collectionName = $("input[name=collectionName]").val();
-        var rate = parseInt($("input[name=rate]").val());
+        var operations = parseInt($("input[name=operations]").val());
         var interval = parseInt($("input[name=interval]").val());
         var duration = parseInt($("input[name=duration]").val());
         Meteor.call('insertToMongo', {
             mongoUrl: mongoUrl,
             collectionName: collectionName,
-            rate: rate,
+            operations: operations,
             interval: interval,
             duration: duration
         }, function (error, result) {
@@ -73,11 +73,11 @@ Template.mongodb.events({
 Template.rateCalculator.events({
     'click button#calc-rate': function (evt, tpl) {
         evt.preventDefault();
-        var operations = $("input[id=operations]").val();
-        var timeunit = $("select[id=time-unit]").val();
+        var operations = $("input[id=calc-operations]").val();
+        var timeunit = $("select[id=calc-time-unit]").val();
         console.log(operations, timeunit);
-        $("input[name=rate]").val(Math.floor(operations/timeunit));
-        $("input[name=interval]").val('10000');
+        $("input[name=operations]").val(Math.floor(operations/timeunit));
+        $("input[name=interval]").val('1');
 
     }
 })
