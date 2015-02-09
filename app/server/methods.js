@@ -23,7 +23,7 @@ Meteor.methods({
             duration: Number
         });
         data.burst = false; // perhaps later we will enhance it to allow bursts
-        waitLimitMs = Math.floor((data.interval/data.operations)*1000); // defines the wait time between two operations in ms
+        waitLimitMs = Math.floor((data.interval / data.operations) * 1000); // defines the wait time between two operations in ms
         console.log("stats:", waitLimitMs, data.operations, data.interval);
         console.log('method insertToMongo called');
         console.log(data.mongoUrl, data.collectionName, data.operations, data.interval, data.duration);
@@ -48,10 +48,11 @@ Meteor.methods({
 
         //}
         console.log("done with ", operationCount, "operations");
+
+        // TODO: Prevent premature notification in the UI (callback?)
         return insertCount;
-
-
     },
+    // TODO: Not functional yet, but cancel should be possible at any time
     // clicking the cancel button should cancel load testing immediately
     'cancel': function () {
         console.log('user wants us to cancel');
@@ -64,15 +65,18 @@ Meteor.methods({
 // rate (object),
 // endTime (moment object)
 // and operationsObject that contains the actual operation and any data (split into command and data?)
+// TODO: add callback
 
 performOperations = function (database, endTime, operationObject, waitLimitMs) {
     // this will be useful as our return value
     var operationsCount = 0;
 
-    // Tenmporary debug logging
-    console.log("running from  " + moment());
-    console.log("running until " + endTime);
-    console.log("is it pre-endTime?", moment().isBefore(endTime));
+    // Temporary debug logging
+    //console.log("running from  " + moment());
+    //console.log("running until " + endTime);
+    //console.log("is it pre-endTime?", moment().isBefore(endTime));
+
+    // actually perform the insertion operation
     function insertDoc() {
         operationsCount++;
         database.open(operationObject.collectionName).insert({foo: 'bar'}, Meteor.bindEnvironment(function (error, result) {
@@ -85,10 +89,10 @@ performOperations = function (database, endTime, operationObject, waitLimitMs) {
         }));
     };
 
-    var insertDocWithLimit = _.rateLimit(Meteor.bindEnvironment(insertDoc), waitLimitMs);
-    for (var i = 0; i < 10; i++) {
+    var insertDocWithLimit = _.rateLimit(Meteor.bindEnvironment(insertDoc), waitLimitMs, true);
+    for (var i = 0; i < 10; i++) { // TODO: This should become while (moment().isBefore(endTime)), for testing only do 10
         insertDocWithLimit(i);
     }
-    // TODO: Prevent premature notification in the UI
+
     return operationsCount;
 };

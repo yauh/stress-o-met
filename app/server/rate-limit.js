@@ -1,4 +1,7 @@
 /* Extend the Underscore object with the following methods */
+// TODO: consider lodash, as throttle has a cancel function built-in we might need
+// https://lodash.com/docs#throttle
+
 
 // https://gist.github.com/rumal/b96472251022e2b195fb
 // Rate limit ensures a function is never called more than every [rate]ms
